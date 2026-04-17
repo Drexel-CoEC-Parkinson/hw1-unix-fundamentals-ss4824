@@ -1,0 +1,74 @@
+# CS 503 — HW1 Part 3: Pipes and Text Processing
+# Write your answers below in the specified format.
+# For each question, provide your pipeline command and the output.
+#
+# Format:
+#   Q1:
+#   COMMAND: <your pipeline here>
+#   ANSWER: <the output>
+
+Q1:
+COMMAND: tail -n +2 server_log.csv | wc -l
+ANSWER: 50000
+
+Q2:
+COMMAND: awk -F',' 'NR>1 {ips[$2]=1} END {print length(ips)}' server_log.csv
+ANSWER: 15
+
+Q3:
+COMMAND: awk -F',' 'NR>1 {eps[$4]++} END {for (ep in eps) print ep, eps[ep]}' server_log.csv | sort -rnk2 | head -5
+ANSWER: /api/predict 10003
+/health 6708
+/api/data/download 3394
+/docs 3386
+/api/evaluate 3368
+
+
+Q4:
+COMMAND: awk -F',' 'NR>1 && $5 ~ /^5[0-9][0-9]$/ {count++} END {print count}' server_log.csv
+ANSWER: 8279
+
+Q5:
+COMMAND: awk -F',' 'NR>1 && $4 == "/api/predict" {sum += $6; count++} END {print sum/count}' server_log.csv
+ANSWER: 1065.21
+
+Q6:
+COMMAND: awk -F',' 'NR>1 {ips[$2]++} END {for (ip in ips) print ip, ips[ip]}' server_log.csv | sort -rnk2 | head -1
+ANSWER: 192.168.1.110 3513
+
+Q7:
+COMMAND: awk -F',' 'NR>1 && $1 ~ /(T12)|(13:00:00)/ && $3 == "POST" {count++} END {print count}' server_log.csv
+ANSWER: 1221
+
+Q8:
+COMMAND: awk -F',' 'NR>1 && $5 == "404" {uas[$7]=1} END {for (ua in uas) print ua}' server_log.csv | sort
+ANSWER: curl/7.81.0
+curl/7.88.1
+Go-http-client/2.0
+HTTPie/3.2.1
+Java/11.0.19
+Mozilla/5.0
+PostmanRuntime/7.32.3
+python-requests/2.28.1
+python-requests/2.31.0
+
+
+Q9:
+COMMAND: awk -F',' 'NR>1 {ms[$3]++} END {for (m in ms) print m, ms[m]}' server_log.csv | sort -rn -k 2
+ANSWER: GET 24968
+POST 15084
+DELETE 5011
+PUT 4937
+
+
+Q10:
+COMMAND: awk -F',' 'NR>1 {print $1, $4, $6}' server_log.csv | sort -rnk3 | head -5
+ANSWER: 2024-01-19T15:09:46 /api/train 69236
+2024-01-18T13:49:04 /api/train 69198
+2024-01-21T14:40:27 /api/train 69091
+2024-01-15T00:02:33 /api/train 68651
+2024-01-25T15:45:54 /api/train 68550
+
+Q11:
+COMMAND: awk -F',' 'NR>1 {eps_count[$4]++; if ($5 ~ /^5[0-9][0-9]$/) eps_ses[$4]++} END {for (ep in eps_count) printf "%s %d %d %.2f%%\n", ep, eps_ses[ep], eps_count[ep], (eps_ses[ep]/eps_count[ep])*100}' server_log.csv | sort -rnk4 | head -1
+ANSWER: /api/predict 1670 8279 20.17%
